@@ -44,7 +44,7 @@ void Tema1::Init()
 
     // Initialize sx and sy (the scale factors)
     scaleX = 1;
-    scaleY = 1;
+    scaleY = 1.5;
 
     // Initialize angularStep
     angularStep = 13.8;
@@ -99,10 +99,38 @@ void Tema1::FrameStart()
 
 void Tema1::Update(float deltaTimeSeconds)
 {
-    if (flyAway || bulletNo==0) {
-        lifeNo--;
+    if (ducksNo % 6 == 0) {
+        changeSpeed = true;
+    }
+    else {
+        changeSpeed = false;
+    }
+    if (changeSpeed) {
+        speedX += (ducksNo/6)+(speedX/6);
+        speedY += (ducksNo / 6) + (speedY / 6);
+        ducksNo++;
+    }
+    duckTime += deltaTimeSeconds;
+    if (duckTime > 5) {
+        if (!kill) {
+            escape = true;
+            ducksNo++;
+            lifeNo--;
+        }
+        duckTime = 0;
+    }
+    if (bulletNo==0) {
+        if (bulletNo == 0 && !kill) {
+            escape = true;
+            ducksNo++;
+        }
+        if (!kill) {
+            lifeNo--;
+        }
         bulletNo = 3;
-        flyAway = false;
+    }
+    if (kill || escape) {
+        duckTime = 0;
     }
 
     modelMatrix = glm::mat3(1);
@@ -114,6 +142,9 @@ void Tema1::Update(float deltaTimeSeconds)
     RenderMesh2D(meshes["wireframe"], shaders["VertexColor"], modelMatrix);
     modelMatrix = glm::mat3(1);
     modelMatrix *= transform2D::Translate(1200, 600);
+    if (kill == true) {
+        modelMatrix *= transform2D::Scale(scaleX, scaleY);
+    }
     RenderMesh2D(meshes["score"], shaders["VertexColor"], modelMatrix);
 
 
@@ -131,22 +162,31 @@ void Tema1::Update(float deltaTimeSeconds)
     }
 
     modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(2*squareSide, squareSide/3);
-
+    modelMatrix *= transform2D::Translate(2*squareSide+randomPosition, squareSide/3);
 
     if (kill == true) {
         transform2D::KillDuck("head", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
-        kill = false;
+    }
+    else if (escape == true) {
+        transform2D::EscapeDuck("head", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
     }
     else {
-        transform2D::MoveDuck("head", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+        transform2D::MoveDuck("head", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY);
     }
     RenderMesh2D(meshes["head"], shaders["VertexColor"], modelMatrix);
     
 
     modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(squareSide/2, squareSide/3);
-    transform2D::MoveDuck("leftWing", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    modelMatrix *= transform2D::Translate(squareSide/2 + randomPosition, squareSide/3);
+    if (kill == true) {
+        transform2D::KillDuck("leftWing", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    }
+    else if (escape == true) {
+        transform2D::EscapeDuck("leftWing", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    }
+    else {
+        transform2D::MoveDuck("leftWing", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY);
+    }
 
     modelMatrix *= transform2D::Translate(squareSide * 0.7, 0);
     if (direction2 == true) {
@@ -167,9 +207,17 @@ void Tema1::Update(float deltaTimeSeconds)
 
 
     modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(squareSide / 2, squareSide / 3);
+    modelMatrix *= transform2D::Translate(squareSide / 2 + randomPosition, squareSide / 3);
 
-    transform2D::MoveDuck("rightWing", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    if (kill == true) {
+        transform2D::KillDuck("rightWing", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    }
+    else if (escape == true) {
+        transform2D::EscapeDuck("rightWing", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    }
+    else {
+        transform2D::MoveDuck("rightWing", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY);
+    }
     modelMatrix *= transform2D::Translate(squareSide*0.7, 0);
 
     if (direction==true) {
@@ -189,15 +237,50 @@ void Tema1::Update(float deltaTimeSeconds)
     RenderMesh2D(meshes["rightWing"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(2*squareSide+squareSide/3, squareSide/3.5);
+    modelMatrix *= transform2D::Translate(2*squareSide+squareSide/3 + randomPosition, squareSide/3.5);
 
-    transform2D::MoveDuck("beak", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    if (kill == true) {
+        transform2D::KillDuck("beak", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    }
+    else if (escape == true) {
+        transform2D::EscapeDuck("beak", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    }
+    else {
+        transform2D::MoveDuck("beak", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY);
+    }
+        
     RenderMesh2D(meshes["beak"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(0, 0);
+    modelMatrix *= transform2D::Translate(randomPosition, 0);
 
-    transform2D::MoveDuck("body", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+    if (kill == true) {
+        transform2D::KillDuck("body", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+        if (translateY < 80) {
+            translateX = 0;
+            translateY = 0;
+            kill = false;
+            randomPosition = rand() % 500 + 200;
+            translateX = resolution.x-randomPosition;
+            direction3 = rand() % 2 == 0 ? 1 : 3;
+            printf("rp %d d3 %d\n", randomPosition, direction3);
+        }
+    }
+    else if (escape == true) {
+        transform2D::EscapeDuck("body", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+        if (translateY > 800) {
+            translateX = 0;
+            translateY = 0;
+            escape = false;
+            randomPosition = rand() % 500 + 200;
+            translateX = resolution.x-randomPosition;
+            direction3 = rand() % 2 == 0 ? 1 : 3;
+            printf("rp %d dir3 %d\n", randomPosition, direction3);
+        }
+    }
+    else {
+        transform2D::MoveDuck("body", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY);
+    }
 
     RenderMesh2D(meshes["body"], shaders["VertexColor"], modelMatrix);
 
@@ -236,13 +319,16 @@ void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 
 void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {
+    printf("ducktime %f ducksNo%d\n", duckTime, ducksNo);
+    printf("speedx %f speedy %f\n", speedX, speedY);
     bulletNo--;
-    //printf("---------------------------------------------------------------\n%d %d %f %f %d %d", mouseX, window->GetResolution().y - mouseY, (2 * 100) + 100 / 2 + translateX, (100 / 2) + translateY, window->GetResolution().x, window->GetResolution().y);
-    printf("\n%f %f", translateX, translateY);
-    if (mouseX <= (2 * 100) + 100 / 2 + translateX && window->GetResolution().y - mouseY <= (100 / 2) + translateY) {
-        //meshes["score"]->vertices.at(2) = VertexFormat(glm::vec3(50, 60, 0), glm::vec3(1, 0, 0));
-        //meshes["score"]->vertices.at(3) = VertexFormat(glm::vec3(0, 60, 0), glm::vec3(1, 0, 0));
-        kill = true;
+    if (mouseX <= translateX+((2 * 100) + 100 / 2) && mouseX>=translateX) {
+        if (window->GetResolution().y - mouseY <= (100 / 2) + translateY && window->GetResolution().y - mouseY >= translateY) {
+            if (!escape) {
+                kill = true;
+                ducksNo++;
+            }
+        }
     }
 }
 

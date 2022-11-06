@@ -34,12 +34,16 @@ namespace m1
         float scaleX, scaleY;
         float angularStep, angularStep2;
         bool direction = false, direction2 = true;
-        int direction3=1;
+        int direction3=3;
         int bulletNo = 3, lifeNo = 3;
         float squareSide = 100;
         glm::ivec2 resolution;
-        bool flyAway = false;
         bool kill = false;
-
+        bool escape = false;
+        float duckTime = 0;
+        int ducksNo=1;
+        float speedX=60, speedY=40;
+        bool changeSpeed = false;
+        int randomPosition=0;
     };
 }   // namespace m1

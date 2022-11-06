@@ -35,13 +35,14 @@ namespace transform2D
 
     }
 
-    inline void MoveDuck(const std::string& name, int *direction3, glm::mat3 *modelMatrix, float deltaTimeSeconds, float* translateX, float* translateY, glm::ivec2 resolution)
+    inline void MoveDuck(const std::string& name, int *direction3, glm::mat3 *modelMatrix,
+        float deltaTimeSeconds, float* translateX, float* translateY, int speedX, int speedY)
     {
         switch (*direction3)
         {
         case 1: //dreapta-sus
-            *translateX += deltaTimeSeconds * (resolution.x / 20);
-            *translateY += deltaTimeSeconds * (resolution.y / 50);
+            *translateX += deltaTimeSeconds * speedX;
+            *translateY += deltaTimeSeconds * speedY;
             if (*translateX > 1050) {
                 //rotation += 100 * deltaTimeSeconds;
                 //(*modelMatrix) *= transform2D::Rotate(rotation);
@@ -52,8 +53,8 @@ namespace transform2D
             }
             break;
         case 2: //dreapta-jos
-            *translateX += deltaTimeSeconds * (resolution.x / 20);
-            *translateY -= deltaTimeSeconds * (resolution.y / 50);
+            *translateX += deltaTimeSeconds * speedX;
+            *translateY -= deltaTimeSeconds * speedY;
             if (*translateX > 1050) {
                 *direction3 = 4;
             }
@@ -62,8 +63,8 @@ namespace transform2D
             }
             break;
         case 3: //stanga-sus
-            *translateX -= deltaTimeSeconds * (resolution.x / 20);
-            *translateY += deltaTimeSeconds * (resolution.y / 50);
+            *translateX -= deltaTimeSeconds * speedX;
+            *translateY += deltaTimeSeconds * speedY;
             if (*translateX < -10) {
                 *direction3 = 1;
             }
@@ -72,8 +73,8 @@ namespace transform2D
             }
             break;
         case 4: //stanga-jos
-            *translateX -= deltaTimeSeconds * (resolution.x / 20);
-            *translateY -= deltaTimeSeconds * (resolution.y / 50);
+            *translateX -= deltaTimeSeconds * speedX;
+            *translateY -= deltaTimeSeconds * speedY;
             if (*translateX < -10) {
                 *direction3 = 2;
             }
@@ -90,9 +91,13 @@ namespace transform2D
 
     inline void KillDuck(const std::string& name, glm::mat3* modelMatrix, float deltaTimeSeconds, float* translateX, float* translateY, glm::ivec2 resolution)
     {
-        //if (*translateY > 180) {
-            *translateY -= deltaTimeSeconds * (resolution.y / 20);
-            (*modelMatrix) *= transform2D::Translate(*translateX, *translateY);
-        //}
+        *translateY -= deltaTimeSeconds * (resolution.y / 20);
+        (*modelMatrix) *= transform2D::Translate(*translateX, *translateY);
+    }
+
+    inline void EscapeDuck(const std::string& name, glm::mat3* modelMatrix, float deltaTimeSeconds, float* translateX, float* translateY, glm::ivec2 resolution)
+    {
+        *translateY += deltaTimeSeconds * (resolution.y / 20);
+        (*modelMatrix) *= transform2D::Translate(*translateX, *translateY);
     }
 }   // namespace transform2D
