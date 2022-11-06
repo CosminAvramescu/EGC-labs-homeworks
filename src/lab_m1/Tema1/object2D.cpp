@@ -83,7 +83,7 @@ Mesh* object2D::CreateTriangle(
 	};
 	if (name == "body") {
 		vertices.push_back(VertexFormat(corner, color));
-		vertices.push_back(VertexFormat(corner + glm::vec3(0, length/1.5, 0), color));
+		vertices.push_back(VertexFormat(corner + glm::vec3(0, length / 1.5, 0), color));
 		vertices.push_back(VertexFormat(corner + glm::vec3(2 * length, length / 3, 0), color));
 	}
 	else if (name == "rightWing") {
