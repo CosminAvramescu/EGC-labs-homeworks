@@ -48,8 +48,8 @@ Mesh* object2D::CreateSquare(
 	if (name == "score") {
 		vertices.push_back(VertexFormat(corner, color));
 		vertices.push_back(VertexFormat(corner + glm::vec3(50, 0, 0), color));
-		vertices.push_back(VertexFormat(corner + glm::vec3(50, 30, 0), color));
-		vertices.push_back(VertexFormat(corner + glm::vec3(0, 30, 0), color));
+		vertices.push_back(VertexFormat(corner + glm::vec3(50, 10, 0), color));
+		vertices.push_back(VertexFormat(corner + glm::vec3(0, 10, 0), color));
 	}
 
 	Mesh* square = new Mesh(name);
@@ -109,9 +109,7 @@ Mesh* object2D::CreateTriangle(
 		triangle->SetDrawMode(GL_LINE_LOOP);
 	}
 	else {
-		// Draw 2 triangles. Add the remaining 2 indices
-		//indices.push_back(0);
-		//indices.push_back(2);
+
 	}
 
 	triangle->InitFromData(vertices, indices);

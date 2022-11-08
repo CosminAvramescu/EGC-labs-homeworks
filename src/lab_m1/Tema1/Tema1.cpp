@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <math.h>
 
 #include "lab_m1/Tema1/transform2D.h"
 #include "lab_m1/Tema1/object2D.h"
@@ -33,10 +34,10 @@ void Tema1::Init()
 
 	// TODO(student): Compute coordinates of a square's center, and store
 	// then in the `cx` and `cy` class variables (see the header). Use
-	// `corner` and `squareSide`. These two class variables will be used
+	// `corner` and `shapeSide`. These two class variables will be used
 	// in the `Update()` function. Think about it, why do you need them?
-	cx = corner.x + squareSide / 2;
-	cy = corner.y + squareSide / 2;
+	cx = corner.x + shapeSide / 2;
+	cy = corner.y + shapeSide / 2;
 
 	// Initialize tx and ty (the translation steps)
 	translateX = 0;
@@ -44,43 +45,43 @@ void Tema1::Init()
 
 	// Initialize sx and sy (the scale factors)
 	scaleX = 1;
-	scaleY = 1.5;
+	scaleY = 1.25;
 
-	// Initialize angularStep
-	angularStep = 13.8;
+	// Initialize angularStep1
+	angularStep1 = 13.8;
 	angularStep2 = 15.3;
 
-	Mesh* body = object2D::CreateTriangle("body", corner, squareSide, glm::vec3(0.3f, 0.1f, 0.0f));
+	Mesh* body = object2D::CreateTriangle("body", corner, shapeSide, glm::vec3(0.3f, 0.1f, 0.0f));
 	AddMeshToList(body);
 
-	Mesh* leftWing = object2D::CreateTriangle("leftWing", corner, squareSide, glm::vec3(0.3f, 0.1f, 0.0f));
+	Mesh* leftWing = object2D::CreateTriangle("leftWing", corner, shapeSide, glm::vec3(0.3f, 0.1f, 0.0f));
 	AddMeshToList(leftWing);
 
-	Mesh* head = object2D::CreateCircle("head", corner, squareSide, glm::vec3(0, 0.3f, 0.2f));
+	Mesh* head = object2D::CreateCircle("head", corner, shapeSide, glm::vec3(0, 0.3f, 0.2f));
 	AddMeshToList(head);
 
-	Mesh* rightWing = object2D::CreateTriangle("rightWing", corner, squareSide, glm::vec3(0.3f, 0.1f, 0.0f));
+	Mesh* rightWing = object2D::CreateTriangle("rightWing", corner, shapeSide, glm::vec3(0.3f, 0.1f, 0.0f));
 	AddMeshToList(rightWing);
 
-	Mesh* beak = object2D::CreateTriangle("beak", corner, squareSide, glm::vec3(0.7f, 0.7f, 0.2f));
+	Mesh* beak = object2D::CreateTriangle("beak", corner, shapeSide, glm::vec3(0.7f, 0.7f, 0.2f));
 	AddMeshToList(beak);
 
-	Mesh* sky = object2D::CreateSquare("sky", corner, squareSide, glm::vec3(0.3f, 0.5f, 0.7f));
+	Mesh* sky = object2D::CreateSquare("sky", corner, shapeSide, glm::vec3(0.3f, 0.5f, 0.7f));
 	AddMeshToList(sky);
 
-	Mesh* earth = object2D::CreateSquare("earth", corner, squareSide, glm::vec3(0.3f, 0.5f, 0.2f));
+	Mesh* earth = object2D::CreateSquare("earth", corner, shapeSide, glm::vec3(0.3f, 0.5f, 0.2f));
 	AddMeshToList(earth);
 
-	Mesh* life = object2D::CreateCircle("life", corner, squareSide, glm::vec3(1, 0.1f, 0.1f));
+	Mesh* life = object2D::CreateCircle("life", corner, shapeSide, glm::vec3(1, 0.1f, 0.1f));
 	AddMeshToList(life);
 
-	Mesh* bullet = object2D::CreateSquare("bullet", corner, squareSide, glm::vec3(0.1f, 0.7f, 0.1f));
+	Mesh* bullet = object2D::CreateSquare("bullet", corner, shapeSide, glm::vec3(0.1f, 0.7f, 0.1f));
 	AddMeshToList(bullet);
 
-	Mesh* wireframe = object2D::CreateSquare("wireframe", corner, squareSide, glm::vec3(1, 0.7f, 0.3f), false);
+	Mesh* wireframe = object2D::CreateSquare("wireframe", corner, shapeSide, glm::vec3(1, 0.7f, 0.3f), false);
 	AddMeshToList(wireframe);
 
-	Mesh* score = object2D::CreateSquare("score", corner, squareSide, glm::vec3(0.4f, 0.3f, 1));
+	Mesh* score = object2D::CreateSquare("score", corner, shapeSide, glm::vec3(0.4f, 0.3f, 1));
 	AddMeshToList(score);
 }
 
@@ -99,9 +100,12 @@ void Tema1::FrameStart()
 
 void Tema1::Update(float deltaTimeSeconds)
 {
+	if (lifeNo == 0) {
+		exit(1);
+	}
 	if (incDuck) {
-		printf("%d\n", ducksNo);
 		ducksNo++;
+		bulletNo = 3;
 		incDuck = false;
 		if (ducksNo % 5 == 0) {
 			speedX += (ducksNo / 5) + (speedX / 5);
@@ -138,11 +142,17 @@ void Tema1::Update(float deltaTimeSeconds)
 	RenderMesh2D(meshes["wireframe"], shaders["VertexColor"], modelMatrix);
 	modelMatrix = glm::mat3(1);
 	modelMatrix *= transform2D::Translate(1200, 600);
-	if (kill == true) {
-		modelMatrix *= transform2D::Scale(scaleX, scaleY);
+	if (ducksNo != 2) {
+		modelMatrix = lastScore;
 	}
-	RenderMesh2D(meshes["score"], shaders["VertexColor"], modelMatrix);
 
+	if (translateX == 0 && translateY == 0 && ducksNo != 1 && !escape) {
+		modelMatrix *= transform2D::Scale(scaleX, scaleY);
+		lastScore = modelMatrix;
+	}
+	if (ducksNo != 1) {
+		RenderMesh2D(meshes["score"], shaders["VertexColor"], modelMatrix);
+	}
 
 	for (int i = 0; i < lifeNo; i++) {
 		modelMatrix = glm::mat3(1);
@@ -158,33 +168,47 @@ void Tema1::Update(float deltaTimeSeconds)
 	}
 
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= transform2D::Translate(2 * squareSide + randomPositionX, squareSide / 3 + randomPositionY);
+	modelMatrix *= transform2D::Translate(2 * shapeSide + randomPositionX, shapeSide / 3 + randomPositionY);
 
 	if (kill == true) {
-		transform2D::KillDuck("head", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(-2 * shapeSide, 0);
+		}
+		modelMatrix *= transform2D::KillDuck("head", deltaTimeSeconds, &translateX, &translateY, resolution);
 	}
 	else if (escape == true) {
-		transform2D::EscapeDuck("head", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(-2 * shapeSide, 0);
+		}
+		modelMatrix *= transform2D::EscapeDuck("head", deltaTimeSeconds, &translateX, &translateY, resolution);
 	}
 	else {
-		transform2D::MoveDuck("head", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
+		modelMatrix *= transform2D::MoveDuck("head", &direction3, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(-2 * shapeSide, 0);
+		}
 	}
 	RenderMesh2D(meshes["head"], shaders["VertexColor"], modelMatrix);
 
 
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= transform2D::Translate(squareSide / 2 + randomPositionX, squareSide / 3 + randomPositionY);
+	modelMatrix *= transform2D::Translate(shapeSide / 2 + randomPositionX, shapeSide / 3 + randomPositionY);
 	if (kill == true) {
-		transform2D::KillDuck("leftWing", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		modelMatrix *= transform2D::KillDuck("leftWing", deltaTimeSeconds, &translateX, &translateY, resolution);
 	}
 	else if (escape == true) {
-		transform2D::EscapeDuck("leftWing", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		modelMatrix *= transform2D::EscapeDuck("leftWing", deltaTimeSeconds, &translateX, &translateY, resolution);
 	}
 	else {
-		transform2D::MoveDuck("leftWing", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
+		modelMatrix *= transform2D::MoveDuck("leftWing", &direction3, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
 	}
 
-	modelMatrix *= transform2D::Translate(squareSide * 0.7, 0);
+	if (direction3 == 3 || direction3 == 4) {
+		modelMatrix *= transform2D::Translate(shapeSide * 0.2, 0);
+	}
+	else {
+		modelMatrix *= transform2D::Translate(shapeSide * 0.7, 0);
+	}
 	if (direction2 == true) {
 		angularStep2 -= deltaTimeSeconds;
 		modelMatrix *= transform2D::Rotate(1.3 * angularStep2);
@@ -197,52 +221,79 @@ void Tema1::Update(float deltaTimeSeconds)
 		if (angularStep2 > 14.7)
 			direction2 = true;
 	}
-	modelMatrix *= transform2D::Translate(-squareSide * 0.7, 0);
+	if (direction3 == 3 || direction3 == 4) {
+		modelMatrix *= transform2D::Translate(-shapeSide * 0.2, 0);
+	}
+	else {
+		modelMatrix *= transform2D::Translate(-shapeSide * 0.7, 0);
+	}
 
 	RenderMesh2D(meshes["leftWing"], shaders["VertexColor"], modelMatrix);
 
 
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= transform2D::Translate(squareSide / 2 + randomPositionX, squareSide / 3 + randomPositionY);
+	modelMatrix *= transform2D::Translate(shapeSide / 2 + randomPositionX, shapeSide / 3 + randomPositionY);
 
 	if (kill == true) {
-		transform2D::KillDuck("rightWing", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		modelMatrix *= transform2D::KillDuck("rightWing", deltaTimeSeconds, &translateX, &translateY, resolution);
 	}
 	else if (escape == true) {
-		transform2D::EscapeDuck("rightWing", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		modelMatrix *= transform2D::EscapeDuck("rightWing", deltaTimeSeconds, &translateX, &translateY, resolution);
 	}
 	else {
-		transform2D::MoveDuck("rightWing", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
+		modelMatrix *= transform2D::MoveDuck("rightWing", &direction3, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
 	}
-	modelMatrix *= transform2D::Translate(squareSide * 0.7, 0);
+	if (direction3 == 3 || direction3 == 4) {
+		modelMatrix *= transform2D::Translate(shapeSide * 0.2, 0);
+	}
+	else {
+		modelMatrix *= transform2D::Translate(shapeSide * 0.7, 0);
+	}
 
-	if (direction == true) {
-		;       angularStep -= deltaTimeSeconds * 2;
-		modelMatrix *= transform2D::Rotate(1.3 * angularStep);
-		if (angularStep < 14.4)
-			direction = false;
+	if (direction1 == true) {
+		angularStep1 -= deltaTimeSeconds * 2;
+		modelMatrix *= transform2D::Rotate(1.3 * angularStep1);
+		if (angularStep1 < 14.4)
+			direction1 = false;
 	}
-	else if (direction == false) {
-		angularStep += deltaTimeSeconds;
-		modelMatrix *= transform2D::Rotate(1.3 * angularStep);
-		if (angularStep > 14.7)
-			direction = true;
+	else if (direction1 == false) {
+		angularStep1 += deltaTimeSeconds;
+		modelMatrix *= transform2D::Rotate(1.3 * angularStep1);
+		if (angularStep1 > 14.7)
+			direction1 = true;
 	}
-	modelMatrix *= transform2D::Translate(-squareSide * 0.7, 0);
+	if (direction3 == 3 || direction3 == 4) {
+		modelMatrix *= transform2D::Translate(-shapeSide * 0.2, 0);
+	}
+	else {
+		modelMatrix *= transform2D::Translate(-shapeSide * 0.7, 0);
+	}
 
 	RenderMesh2D(meshes["rightWing"], shaders["VertexColor"], modelMatrix);
 
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= transform2D::Translate(2 * squareSide + squareSide / 3 + randomPositionX, squareSide / 3.5 + randomPositionY);
+	modelMatrix *= transform2D::Translate(2 * shapeSide + shapeSide / 3 + randomPositionX, shapeSide / 3.5 + randomPositionY);
 
 	if (kill == true) {
-		transform2D::KillDuck("beak", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		modelMatrix *= transform2D::KillDuck("beak", deltaTimeSeconds, &translateX, &translateY, resolution);
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(-2 * shapeSide - shapeSide / 1.6, 15);
+			modelMatrix *= transform2D::Rotate(M_PI);
+		}
 	}
 	else if (escape == true) {
-		transform2D::EscapeDuck("beak", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		modelMatrix *= transform2D::EscapeDuck("beak", deltaTimeSeconds, &translateX, &translateY, resolution);
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(-2 * shapeSide - shapeSide / 1.6, 15);
+			modelMatrix *= transform2D::Rotate(M_PI);
+		}
 	}
 	else {
-		transform2D::MoveDuck("beak", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
+		modelMatrix *= transform2D::MoveDuck("beak", &direction3, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(-2 * shapeSide - shapeSide / 1.6, 15);
+			modelMatrix *= transform2D::Rotate(M_PI);
+		}
 	}
 
 	RenderMesh2D(meshes["beak"], shaders["VertexColor"], modelMatrix);
@@ -251,7 +302,7 @@ void Tema1::Update(float deltaTimeSeconds)
 	modelMatrix *= transform2D::Translate(randomPositionX, randomPositionY);
 
 	if (kill == true) {
-		transform2D::KillDuck("body", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		modelMatrix *= transform2D::KillDuck("body", deltaTimeSeconds, &translateX, &translateY, resolution);
 		if (translateY < 80) {
 			translateX = 0;
 			translateY = 0;
@@ -261,9 +312,14 @@ void Tema1::Update(float deltaTimeSeconds)
 			direction3 = rand() % 2 == 0 ? 1 : 3;
 			incDuck = true;
 		}
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(shapeSide, shapeSide / 3);
+			modelMatrix *= transform2D::Rotate(M_PI);
+			modelMatrix *= transform2D::Translate(-shapeSide, -shapeSide / 3);
+		}
 	}
 	else if (escape == true) {
-		transform2D::EscapeDuck("body", &modelMatrix, deltaTimeSeconds, &translateX, &translateY, resolution);
+		modelMatrix *= transform2D::EscapeDuck("body", deltaTimeSeconds, &translateX, &translateY, resolution);
 		if (translateY > 800) {
 			translateX = 0;
 			translateY = 0;
@@ -273,15 +329,25 @@ void Tema1::Update(float deltaTimeSeconds)
 			direction3 = rand() % 2 == 0 ? 1 : 3;
 			incDuck = true;
 		}
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(shapeSide, shapeSide / 3);
+			modelMatrix *= transform2D::Rotate(M_PI);
+			modelMatrix *= transform2D::Translate(-shapeSide, -shapeSide / 3);
+		}
 	}
 	else {
-		transform2D::MoveDuck("body", &direction3, &modelMatrix, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
+		modelMatrix *= transform2D::MoveDuck("body", &direction3, deltaTimeSeconds, &translateX, &translateY, speedX, speedY, randomPositionX, randomPositionY);
+		if (direction3 == 3 || direction3 == 4) {
+			modelMatrix *= transform2D::Translate(shapeSide, shapeSide / 3);
+			modelMatrix *= transform2D::Rotate(M_PI);
+			modelMatrix *= transform2D::Translate(-shapeSide, -shapeSide / 3);
+		}
 	}
 
 	RenderMesh2D(meshes["body"], shaders["VertexColor"], modelMatrix);
 
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= transform2D::Translate(0, 200);
+	modelMatrix *= transform2D::Translate(0, 2 * shapeSide);
 	RenderMesh2D(meshes["sky"], shaders["VertexColor"], modelMatrix);
 }
 
@@ -316,8 +382,10 @@ void Tema1::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
 void Tema1::OnMouseBtnPress(int mouseX, int mouseY, int button, int mods)
 {
 	bulletNo--;
-	if (mouseX <= translateX + randomPositionX + ((2 * 100) + 100 / 2) && mouseX >= translateX + randomPositionX) {
-		if (window->GetResolution().y - mouseY <= (100 / 2) + translateY + randomPositionY && window->GetResolution().y - mouseY >= translateY + randomPositionY) {
+	float crossX = mouseX * 1280 / window->GetResolution().x;
+	float crossY = 720 - (mouseY * 720 / window->GetResolution().y);
+	if (crossX <= translateX + randomPositionX + ((2 * 100) + 100 / 2) && crossX >= translateX + randomPositionX) {
+		if (crossY <= (100 / 2) + translateY + randomPositionY && crossY >= translateY + randomPositionY) {
 			if (!escape) {
 				kill = true;
 			}

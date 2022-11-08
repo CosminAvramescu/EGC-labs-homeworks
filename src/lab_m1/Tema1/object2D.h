@@ -8,14 +8,12 @@
 
 namespace object2D
 {
+	// Create square with given bottom left corner, length and color
+	Mesh* CreateSquare(const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 color, bool fill = true);
 
-    // Create square with given bottom left corner, length and color
-    Mesh* CreateSquare(const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 color, bool fill = true);
+	Mesh* CreateTriangle(const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 color, bool fill = true);
 
-    Mesh* CreateTriangle(const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 color, bool fill = true);
-
-    Mesh* CreateCircle (const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 color, bool fill = true);
-
+	Mesh* CreateCircle(const std::string& name, glm::vec3 leftBottomCorner, float length, glm::vec3 color, bool fill = true);
 
 }
 //double drawCircle(int i, bool x1, bool y1);

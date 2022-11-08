@@ -32,11 +32,11 @@ namespace m1
 		glm::mat3 modelMatrix;
 		float translateX, translateY;
 		float scaleX, scaleY;
-		float angularStep, angularStep2;
-		bool direction = false, direction2 = true;
+		float angularStep1, angularStep2;
+		bool direction1 = false, direction2 = true;
 		int direction3 = 3;
 		int bulletNo = 3, lifeNo = 3;
-		float squareSide = 100;
+		float shapeSide = 100;
 		glm::ivec2 resolution;
 		bool kill = false;
 		bool escape = false;
@@ -45,5 +45,7 @@ namespace m1
 		bool incDuck = true;
 		float speedX = 60, speedY = 40;
 		int randomPositionX = 0, randomPositionY = 0;
+		glm::mat3 lastScore;
+		float initialScore = 10;
 	};
 }   // namespace m1

@@ -4,7 +4,6 @@
 
 namespace transform2D
 {
-	int rotation = 0;
 	// Translate matrix
 	inline glm::mat3 Translate(float translateX, float translateY)
 	{
@@ -35,9 +34,9 @@ namespace transform2D
 
 	}
 
-	inline void MoveDuck(const std::string& name, int* direction3, glm::mat3* modelMatrix,
-		float deltaTimeSeconds, float* translateX, float* translateY, int speedX, int speedY,
-		int randomPositionX, int randomPositionY)
+	inline glm::mat3 MoveDuck(const std::string& name, int* direction3, 
+		float deltaTimeSeconds, float* translateX, float* translateY, 
+		int speedX, int speedY, int randomPositionX, int randomPositionY)
 	{
 		switch (*direction3)
 		{
@@ -45,8 +44,6 @@ namespace transform2D
 			*translateX += deltaTimeSeconds * speedX;
 			*translateY += deltaTimeSeconds * speedY;
 			if (*translateX + randomPositionX > 1050) {
-				//rotation += 100 * deltaTimeSeconds;
-				//(*modelMatrix) *= transform2D::Rotate(rotation);
 				*direction3 = 3;
 			}
 			else if (*translateY + randomPositionY > 680) {
@@ -87,18 +84,20 @@ namespace transform2D
 			break;
 		}
 
-		(*modelMatrix) *= transform2D::Translate(*translateX, *translateY);
+		return transform2D::Translate(*translateX, *translateY);
 	}
 
-	inline void KillDuck(const std::string& name, glm::mat3* modelMatrix, float deltaTimeSeconds, float* translateX, float* translateY, glm::ivec2 resolution)
+	inline glm::mat3 KillDuck(const std::string& name, float deltaTimeSeconds, 
+		float* translateX, float* translateY, glm::ivec2 resolution)
 	{
-		*translateY -= deltaTimeSeconds * (resolution.y / 20);
-		(*modelMatrix) *= transform2D::Translate(*translateX, *translateY);
+		*translateY -= deltaTimeSeconds * (resolution.y / 10);
+		return transform2D::Translate(*translateX, *translateY);
 	}
 
-	inline void EscapeDuck(const std::string& name, glm::mat3* modelMatrix, float deltaTimeSeconds, float* translateX, float* translateY, glm::ivec2 resolution)
+	inline glm::mat3 EscapeDuck(const std::string& name, float deltaTimeSeconds, 
+		float* translateX, float* translateY, glm::ivec2 resolution)
 	{
-		*translateY += deltaTimeSeconds * (resolution.y / 20);
-		(*modelMatrix) *= transform2D::Translate(*translateX, *translateY);
+		*translateY += deltaTimeSeconds * (resolution.y / 10);
+		return transform2D::Translate(*translateX, *translateY);
 	}
 }   // namespace transform2D
