@@ -32,13 +32,6 @@ void Tema1::Init()
 
 	glm::vec3 corner = glm::vec3(0, 0, 0);
 
-	// TODO(student): Compute coordinates of a square's center, and store
-	// then in the `cx` and `cy` class variables (see the header). Use
-	// `corner` and `shapeSide`. These two class variables will be used
-	// in the `Update()` function. Think about it, why do you need them?
-	cx = corner.x + shapeSide / 2;
-	cy = corner.y + shapeSide / 2;
-
 	// Initialize tx and ty (the translation steps)
 	translateX = 0;
 	translateY = 0;
@@ -47,7 +40,7 @@ void Tema1::Init()
 	scaleX = 1;
 	scaleY = 1.25;
 
-	// Initialize angularStep1
+	// Initialize angularStep
 	angularStep1 = 13.8;
 	angularStep2 = 15.3;
 
@@ -138,10 +131,10 @@ void Tema1::Update(float deltaTimeSeconds)
 	RenderMesh2D(meshes["earth"], shaders["VertexColor"], modelMatrix);
 
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= transform2D::Translate(1200, 600);
+	modelMatrix *= transform2D::Translate(1200, 618.5);
 	RenderMesh2D(meshes["wireframe"], shaders["VertexColor"], modelMatrix);
 	modelMatrix = glm::mat3(1);
-	modelMatrix *= transform2D::Translate(1200, 600);
+	modelMatrix *= transform2D::Translate(1200, 618.5);
 	if (ducksNo != 2) {
 		modelMatrix = lastScore;
 	}
@@ -307,7 +300,7 @@ void Tema1::Update(float deltaTimeSeconds)
 			translateX = 0;
 			translateY = 0;
 			kill = false;
-			randomPositionX = rand() % 1100 + 100;
+			randomPositionX = rand() % 1200 + 100;
 			randomPositionY = rand() % 100;
 			direction3 = rand() % 2 == 0 ? 1 : 3;
 			incDuck = true;
@@ -324,7 +317,7 @@ void Tema1::Update(float deltaTimeSeconds)
 			translateX = 0;
 			translateY = 0;
 			escape = false;
-			randomPositionX = rand() % 1100 + 100;
+			randomPositionX = rand() % 1200 + 100;
 			randomPositionY = rand() % 200;
 			direction3 = rand() % 2 == 0 ? 1 : 3;
 			incDuck = true;

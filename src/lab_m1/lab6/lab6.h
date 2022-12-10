@@ -10,6 +10,7 @@ namespace m1
     class Lab6 : public gfxc::SimpleScene
     {
      public:
+        float clock;
         Lab6();
         ~Lab6();
 

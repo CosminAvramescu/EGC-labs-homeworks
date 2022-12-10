@@ -28,13 +28,12 @@ namespace m1
 		void OnWindowResize(int width, int height) override;
 
 	protected:
-		float cx, cy;
 		glm::mat3 modelMatrix;
 		float translateX, translateY;
 		float scaleX, scaleY;
 		float angularStep1, angularStep2;
 		bool direction1 = false, direction2 = true;
-		int direction3 = 3;
+		int direction3 = 1;
 		int bulletNo = 3, lifeNo = 3;
 		float shapeSide = 100;
 		glm::ivec2 resolution;

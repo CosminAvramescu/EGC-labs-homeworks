@@ -15,5 +15,6 @@ void main()
 {
     // TODO(student): Write pixel out color
     //out_color = vec4(1);
+
     out_color = vec4(frag_color, 1);
 }

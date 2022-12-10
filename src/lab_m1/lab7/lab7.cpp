@@ -43,7 +43,6 @@ void Lab7::Init()
         mesh->LoadMesh(PATH_JOIN(window->props.selfDir, RESOURCE_PATH::MODELS, "primitives"), "plane50.obj");
         meshes[mesh->GetMeshID()] = mesh;
     }
-
     // Create a shader program for drawing face polygon with the color of the normal
     {
         Shader *shader = new Shader("LabShader");
@@ -57,7 +56,7 @@ void Lab7::Init()
     {
         lightPosition = glm::vec3(0, 1, 1);
         materialShininess = 30;
-        materialKd = 0.5;
+        materialKd = 0.6;
         materialKs = 0.5;
     }
 }
@@ -80,7 +79,7 @@ void Lab7::Update(float deltaTimeSeconds)
     {
         glm::mat4 modelMatrix = glm::mat4(1);
         modelMatrix = glm::translate(modelMatrix, glm::vec3(0, 1, 0));
-        RenderSimpleMesh(meshes["sphere"], shaders["LabShader"], modelMatrix);
+        RenderSimpleMesh(meshes["sphere"], shaders["LabShader"], modelMatrix, glm::vec3(0, 0, 1));
     }
 
     {
@@ -88,14 +87,14 @@ void Lab7::Update(float deltaTimeSeconds)
         modelMatrix = glm::translate(modelMatrix, glm::vec3(2, 0.5f, 0));
         modelMatrix = glm::rotate(modelMatrix, RADIANS(60.0f), glm::vec3(1, 0, 0));
         modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f));
-        RenderSimpleMesh(meshes["box"], shaders["LabShader"], modelMatrix);
+        RenderSimpleMesh(meshes["box"], shaders["LabShader"], modelMatrix, glm::vec3(1, 1, 0));
     }
 
     {
         glm::mat4 modelMatrix = glm::mat4(1);
         modelMatrix = glm::translate(modelMatrix, glm::vec3(-2, 0.5f, 0));
         modelMatrix = glm::rotate(modelMatrix, RADIANS(60.0f), glm::vec3(1, 1, 0));
-        RenderSimpleMesh(meshes["box"], shaders["LabShader"], modelMatrix, glm::vec3(0, 0.5, 0));
+        RenderSimpleMesh(meshes["box"], shaders["LabShader"], modelMatrix, glm::vec3(1, 0, 1));
     }
 
     // Render ground
@@ -132,11 +131,26 @@ void Lab7::RenderSimpleMesh(Mesh *mesh, Shader *shader, const glm::mat4 & modelM
 
     // Set shader uniforms for light & material properties
     // TODO(student): Set light position uniform
+    GLint loc_light_position = glGetUniformLocation(shader->program, "light_position");
+    glUniform3fv(loc_light_position, 1, glm::value_ptr(lightPosition));
 
     glm::vec3 eyePosition = GetSceneCamera()->m_transform->GetWorldPosition();
     // TODO(student): Set eye position (camera position) uniform
+    GLint loc_eye_position = glGetUniformLocation(shader->program, "eye_position");
+    glUniform3fv(loc_eye_position, 1, glm::value_ptr(eyePosition));
 
     // TODO(student): Set material property uniforms (shininess, kd, ks, object color)
+    GLint loc = glGetUniformLocation(shader->program, "material_shininess");
+    glUniform1i(loc, materialShininess);
+
+    loc = glGetUniformLocation(shader->program, "material_kd");
+    glUniform1f(loc, materialKd);
+
+    loc = glGetUniformLocation(shader->program, "material_ks");
+    glUniform1f(loc, materialKs);
+
+    loc = glGetUniformLocation(shader->program, "object_color");
+    glUniform3fv(loc, 1, glm::value_ptr(color));
 
     // Bind model matrix
     GLint loc_model_matrix = glGetUniformLocation(shader->program, "Model");

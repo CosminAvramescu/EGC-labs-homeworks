@@ -11,6 +11,8 @@ namespace m1
      public:
         Lab5();
         ~Lab5();
+        bool isOrtho = false;
+        float orthoRight = 8.0f, orthoUp = 4.5f, orthoDown = -4.5f, orthoLeft = -8.0f;
 
         void Init() override;
 
